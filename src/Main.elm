@@ -83,7 +83,7 @@ update msg model =
             , Cmd.none )
 
         ToggleDialog ->
-            ( { model | dialogOpened = not model.dialogOpened}
+            ( { model | dialogOpened = not model.dialogOpened }
             , Cmd.none )
 
 
@@ -129,11 +129,17 @@ view model =
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
-        , Html.map ManageRolesMsg (ManageRoles.view model.manageRoles)
+        , viewManageRoles model.dialogOpened model.manageRoles
         , viewTableWithSearch model.roles model.tableState model.query
         , viewAvatar model.currentImg
         ]
 
+viewManageRoles : Bool -> ManageRoles.Model -> Html Msg
+viewManageRoles bool manageRolesModel =
+    if bool then
+        div [] []
+    else
+        Html.map ManageRolesMsg (ManageRoles.view manageRolesModel)
 
 viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
 viewTableWithSearch roles tableState query =

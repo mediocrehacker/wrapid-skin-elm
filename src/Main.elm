@@ -66,6 +66,7 @@ type Msg
     | SetQuery String
     | SetTableState Table.State
     | ToggleDialog
+    | AddRole
     | ManageRoleMsg ManageRole.Msg
 
 
@@ -114,6 +115,10 @@ update msg model =
                     ( { model | manageRole = updatedManageRoleModel }
                     , Cmd.map ManageRoleMsg manageRoleCmd
                     )
+        AddRole ->
+            ( { model | roles = model.roles ++ [model.manageRole] }
+            , Cmd.none
+            )
 
         -- _ ->
         --     (model, Cmd.none)
@@ -140,7 +145,9 @@ viewManageRole bool manageRolesModel =
     if bool then
         div [] []
     else
-        Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
+        div []
+            [ Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
+            , button [ onClick AddRole ] [ text "ADD ROLE" ] ]
 
 viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
 viewTableWithSearch roles tableState query =
@@ -173,11 +180,11 @@ config =
         , Table.stringColumn "Last" .last
         , Table.stringColumn "Call Start" .callStart
         , Table.stringColumn "Pay" .pay
-        , Table.stringColumn "Lunch Start" .lunch_start
-        , Table.stringColumn "Lunch length" .lunch_length
+        , Table.stringColumn "Lunch Start" .lunchStart
+        , Table.stringColumn "Lunch length" .lunchLength
         , Table.stringColumn "In" .roleIn
         , Table.stringColumn "Out" .roleOut
-        , Table.stringColumn "Call End" .call_end
+        , Table.stringColumn "Call End" .callEnd
         , Table.stringColumn "Email" .email
         ]
     }

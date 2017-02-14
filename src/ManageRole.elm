@@ -1,7 +1,7 @@
 module ManageRole exposing (..)
 
 import Html exposing (Html, text, input, div, p)
-import Html.Attributes exposing (placeholder, style)
+import Html.Attributes exposing (placeholder, style, value)
 import Html.Events exposing (onInput)
 import Types exposing (Role)
 
@@ -48,10 +48,10 @@ update msg model =
             ( { model | pay = str }
             , Cmd.none)
         UpdLunchStart str ->
-            ( { model | lunch_start = str }
+            ( { model | lunchStart = str }
             , Cmd.none)
         UpdLunchLength str ->
-            ( { model | lunch_length = str}
+            ( { model | lunchLength = str}
             , Cmd.none)
         UpdRoleIn str ->
             ( { model | roleIn = str}
@@ -60,7 +60,7 @@ update msg model =
             ( { model | roleOut = str}
             , Cmd.none)
         UpdCallEnd str ->
-            ( { model | call_end = str}
+            ( { model | callEnd = str}
             , Cmd.none)
         UpdEmail str ->
             ( { model | email = str}
@@ -81,16 +81,16 @@ view model =
     in
         div [ display ]
             [ p [] [ text ""]
-            , input [ placeholder "Role", onInput UpdRole ] []
-            , input [ placeholder "First", onInput UpdFirst ] []
-            , input [ placeholder "Last", onInput UpdLast ] []
-            , input [ placeholder "Call Start", onInput UpdCallstart ] []
-            , input [ placeholder "Pay", onInput UpdPay ] []
-            , input [ placeholder "Lunch Start", onInput UpdLunchStart ] []
-            , input [ placeholder "Lunch length", onInput UpdLunchLength ] []
-            , input [ placeholder "In", onInput UpdRoleIn ] []
-            , input [ placeholder "Out", onInput UpdRoleOut ] []
-            , input [ placeholder "Call End", onInput UpdCallEnd ] []
-            , input [ placeholder "Email", onInput UpdEmail ] []
+            , input [ placeholder "Role", onInput UpdRole, value model.role ] []
+            , input [ placeholder "First", onInput UpdFirst, value model.first ] []
+            , input [ placeholder "Last", onInput UpdLast, value model.last ] []
+            , input [ placeholder "Call Start", onInput UpdCallstart, value model.callStart ] []
+            , input [ placeholder "Pay", onInput UpdPay, value model.pay ] []
+            , input [ placeholder "Lunch Start", onInput UpdLunchStart, value model.lunchStart ] []
+            , input [ placeholder "Lunch length", onInput UpdLunchLength, value model.lunchLength ] []
+            , input [ placeholder "In", onInput UpdRoleIn, value model.roleIn ] []
+            , input [ placeholder "Out", onInput UpdRoleOut, value model.roleOut ] []
+            , input [ placeholder "Call End", onInput UpdCallEnd, value model.callEnd ] []
+            , input [ placeholder "Email", onInput UpdEmail, value model.email] []
             , Html.hr [] []
             ]

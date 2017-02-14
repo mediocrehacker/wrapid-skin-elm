@@ -6,11 +6,11 @@ type alias Role =
     , last : String
     , callStart : String
     , pay: String
-    , lunch_start : String
-    , lunch_length : String
+    , lunchStart : String
+    , lunchLength : String
     , roleIn : String
     , roleOut : String
-    , call_end : String
+    , callEnd : String
     , email : String
     }
 

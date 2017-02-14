@@ -1,8 +1,8 @@
 port module Main exposing (main)
 
-import Html exposing (Html, a, button, div, h1, img, li, p, text, ul)
-import Html.Attributes exposing (href, src)
-import Html.Events exposing (onClick)
+import Html exposing (Html, a, button, div, h1, img, li, p, text, ul, input)
+import Html.Attributes exposing (href, src, placeholder)
+import Html.Events exposing (onClick, onInput)
 import Navigation as Nav
 import List.Extra exposing (find)
 import WrapidLogo exposing (logo)
@@ -27,6 +27,7 @@ type alias Model =
     { history : List Nav.Location
     , profiles : List Profile
     , currentImg : Maybe String
+    , roles : List Role
     , tableState : Table.State
     , query : String
     }
@@ -45,7 +46,7 @@ type alias Profile =
 
 init : Nav.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model [ location ] [] Nothing (Table.initialSort "Role") ""
+    ( Model [ location ] [] Nothing defaultRoles (Table.initialSort "Role") ""
     , Cmd.none
     )
 
@@ -57,6 +58,7 @@ init location =
 type Msg
     = UrlChange Nav.Location
     | ShowAvatar String
+    | SetQuery String
     | SetTableState Table.State
 
 
@@ -67,6 +69,10 @@ update msg model =
             ( { model | history = location :: model.history }
             , Cmd.none
             )
+
+        SetQuery newQuery ->
+            ( { model | query = newQuery }
+            , Cmd.none )
 
 
         ShowAvatar id ->
@@ -99,10 +105,28 @@ view model =
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
-        , Table.view config model.tableState defaultRoles
+        , viewTableWithSearch model.roles model.tableState model.query
         , viewAvatar model.currentImg
         ]
 
+viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
+viewTableWithSearch roles tableState query =
+    let
+        lowerQuery =
+            String.toLower query
+
+        acceptableRole =
+            List.filter (String.contains lowerQuery << String.toLower << .role) roles
+    in
+        div []
+            [ input [ placeholder "Search by Role", onInput SetQuery ] []
+            , viewTable tableState acceptableRole
+            ]
+
+
+viewTable : Table.State -> List Role -> Html Msg
+viewTable tableState roles =
+    Table.view config tableState roles
 
 config : Table.Config Role Msg
 config =

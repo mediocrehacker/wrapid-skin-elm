@@ -1,6 +1,6 @@
 port module Main exposing (main)
 
-import ManageRoles as ManageRoles
+import ManageRole as ManageRole
 import Types exposing (Role)
 import Html exposing (Html, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style)
@@ -29,7 +29,7 @@ type alias Model =
     { history : List Nav.Location
     , profiles : List Profile
     , currentImg : Maybe String
-    , manageRoles : List Role
+    , manageRole : ManageRole.Model
     , roles : List Role
     , tableState : Table.State
     , query : String
@@ -50,7 +50,7 @@ type alias Profile =
 
 initModel : Nav.Location -> Model
 initModel location =
-    Model [ location ] [] Nothing [] [] (Table.initialSort "Role") "" False
+    Model [ location ] [] Nothing  ManageRole.init [] (Table.initialSort "Role") "" False
 
 init : Nav.Location -> (Model, Cmd Msg)
 init location =
@@ -66,7 +66,7 @@ type Msg
     | SetQuery String
     | SetTableState Table.State
     | ToggleDialog
-    | ManageRolesMsg ManageRoles.Msg
+    | ManageRoleMsg ManageRole.Msg
 
 
 
@@ -105,17 +105,18 @@ update msg model =
             )
 
 
-        -- AddRoleMsg subMsg ->
-        --         let
-        --             ( updatedRoleModel, roleCmd ) =
-        --                 Wizard.update subMsg model.wizardModel
-        --         in
-        --             ( { model | wizardModel = updatedWizardModel }
-        --             , Cmd.map WizardMsg wizardCmd
-        --             )
+        ManageRoleMsg subMsg ->
+                let
+                    _ = Debug.log "model: " model
+                    ( updatedManageRoleModel, manageRoleCmd ) =
+                        ManageRole.update subMsg model.manageRole
+                in
+                    ( { model | manageRole = updatedManageRoleModel }
+                    , Cmd.map ManageRoleMsg manageRoleCmd
+                    )
 
-        _ ->
-            (model, Cmd.none)
+        -- _ ->
+        --     (model, Cmd.none)
 
 -- VIEW
 
@@ -129,17 +130,17 @@ view model =
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
-        , viewManageRoles model.dialogOpened model.manageRoles
+        , viewManageRole model.dialogOpened model.manageRole
         , viewTableWithSearch model.roles model.tableState model.query
         , viewAvatar model.currentImg
         ]
 
-viewManageRoles : Bool -> ManageRoles.Model -> Html Msg
-viewManageRoles bool manageRolesModel =
+viewManageRole : Bool -> ManageRole.Model -> Html Msg
+viewManageRole bool manageRolesModel =
     if bool then
         div [] []
     else
-        Html.map ManageRolesMsg (ManageRoles.view manageRolesModel)
+        Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
 
 viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
 viewTableWithSearch roles tableState query =

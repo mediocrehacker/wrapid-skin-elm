@@ -86,8 +86,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ logo
-        , h1 [] [ text "Pages" ]
+        [ -- logo
+        h1 [] [ text "Pages" ]
         , ul [] (List.map viewLink [ "bears", "cats", "dogs", "elephants", "fish" ])
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)

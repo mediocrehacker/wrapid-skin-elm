@@ -72,25 +72,18 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        display =
-            if False then
-                style [("display", "none")]
-            else
-                style [("display", "block")]
-    in
-        div [ display ]
-            [ p [] [ text ""]
-            , input [ placeholder "Role", onInput UpdRole, value model.role ] []
-            , input [ placeholder "First", onInput UpdFirst, value model.first ] []
-            , input [ placeholder "Last", onInput UpdLast, value model.last ] []
-            , input [ placeholder "Call Start", onInput UpdCallstart, value model.callStart ] []
-            , input [ placeholder "Pay", onInput UpdPay, value model.pay ] []
-            , input [ placeholder "Lunch Start", onInput UpdLunchStart, value model.lunchStart ] []
-            , input [ placeholder "Lunch length", onInput UpdLunchLength, value model.lunchLength ] []
-            , input [ placeholder "In", onInput UpdRoleIn, value model.roleIn ] []
-            , input [ placeholder "Out", onInput UpdRoleOut, value model.roleOut ] []
-            , input [ placeholder "Call End", onInput UpdCallEnd, value model.callEnd ] []
-            , input [ placeholder "Email", onInput UpdEmail, value model.email] []
-            , Html.hr [] []
-            ]
+    div [ ]
+        [ p [] [ text ""]
+        , input [ placeholder "Role", onInput UpdRole, value model.role ] []
+        , input [ placeholder "First", onInput UpdFirst, value model.first ] []
+        , input [ placeholder "Last", onInput UpdLast, value model.last ] []
+        , input [ placeholder "Call Start", onInput UpdCallstart, value model.callStart ] []
+        , input [ placeholder "Pay", onInput UpdPay, value model.pay ] []
+        , input [ placeholder "Lunch Start", onInput UpdLunchStart, value model.lunchStart ] []
+        , input [ placeholder "Lunch length", onInput UpdLunchLength, value model.lunchLength ] []
+        , input [ placeholder "In", onInput UpdRoleIn, value model.roleIn ] []
+        , input [ placeholder "Out", onInput UpdRoleOut, value model.roleOut ] []
+        , input [ placeholder "Call End", onInput UpdCallEnd, value model.callEnd ] []
+        , input [ placeholder "Email", onInput UpdEmail, value model.email] []
+        , Html.hr [] []
+        ]

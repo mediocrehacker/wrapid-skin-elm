@@ -4,7 +4,7 @@
   "description": "Wrapid App in Elm",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dashboard -- webpack-dev-server --env dev",
+    "start": "webpack-dashboard -m -- webpack-dev-server --env dev",
     "build": "webpack --env prod"
   },
   "author": "",

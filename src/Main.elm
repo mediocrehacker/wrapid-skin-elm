@@ -7,7 +7,7 @@ import Navigation as Nav
 import List.Extra exposing (find)
 import WrapidLogo exposing (logo)
 import Maybe exposing (andThen)
-
+import Table
 
 main : Program Never Model Msg
 main =
@@ -27,6 +27,8 @@ type alias Model =
     { history : List Nav.Location
     , profiles : List Profile
     , currentImg : Maybe String
+    , tableState : Table.State
+    , query : String
     }
 
 
@@ -43,7 +45,7 @@ type alias Profile =
 
 init : Nav.Location -> ( Model, Cmd Msg )
 init location =
-    ( Model [ location ] [] Nothing
+    ( Model [ location ] [] Nothing (Table.initialSort "Role") ""
     , Cmd.none
     )
 
@@ -55,6 +57,7 @@ init location =
 type Msg
     = UrlChange Nav.Location
     | ShowAvatar String
+    | SetTableState Table.State
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,6 +81,10 @@ update msg model =
                 , Cmd.none
                 )
 
+        SetTableState newState ->
+            ( { model | tableState = newState }
+            , Cmd.none
+            )
 
 
 -- VIEW
@@ -92,9 +99,30 @@ view model =
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
+        , Table.view config model.tableState defaultRoles
         , viewAvatar model.currentImg
         ]
 
+
+config : Table.Config Role Msg
+config =
+  Table.config
+    { toId = .role
+    , toMsg = SetTableState
+    , columns =
+        [ Table.stringColumn "Role" .role
+        , Table.stringColumn "First" .first
+        , Table.stringColumn "Last" .last
+        , Table.stringColumn "Call Start" .callStart
+        , Table.stringColumn "Pay" .pay
+        , Table.stringColumn "Lunch Start" .lunch_start
+        , Table.stringColumn "Lunch length" .lunch_length
+        , Table.stringColumn "In" .roleIn
+        , Table.stringColumn "Out" .roleOut
+        , Table.stringColumn "Call End" .call_end
+        , Table.stringColumn "Email" .email
+        ]
+    }
 
 viewLink : String -> Html msg
 viewLink name =
@@ -122,3 +150,59 @@ viewAvatar url =
 
 
 -- SUBSCRIPTIONS
+
+
+-- ROLE
+
+type alias Role =
+    { role : String
+    , first : String
+    , last : String
+    , callStart : String
+    , pay: String
+    , lunch_start : String
+    , lunch_length : String
+    , roleIn : String
+    , roleOut : String
+    , call_end : String
+    , email : String
+    }
+
+
+defaultRoles : List Role
+defaultRoles =
+    [ Role "Zombie Extra" "Josh" "Weinberg" "8:00 Am" "$ 125/12" "12:00" "1 hr" "" "" "5:00PM" "josh@gmail.com"
+    , Role "Zombie Super Extra" "Josh" "Weinberg" "8:00 Am" "$ 125/12" "12:00" "1 hr" "" "" "5:00PM" "josh@gmail.com"
+    , Role "Cop Extra" "Peter" "Geit" "9:00 Am" "$ 130/12" "11:00" "1 hr" "" "" "5:00PM" "joshBig@gmail.com"
+    , Role "Thief Extra" "Peter" "Geit" "9:00 Am" "$ 145/12" "13:00" "1 hr" "" "" "6:00PM" "joshBIg@gmail.com"
+    , Role "Thief Extra" "Max" "Marra" "8:30 Am" "$ 150/6" "14:00" "1 hr" "" "" "8:00PM" "joshSmall@gmail.com"
+    , Role "Zombie Extra" "Josh" "Weinberg" "8:40 Am" "$ 100/12" "13:30" "1.5 hr" "" "" "7:00PM" "joshTall@gmail.com"
+    , Role "Zombie Extra" "Josh" "Weinberg" "8:15 Am" "$ 50/12" "14:15" "2 hr" "" "" "5:00PM" "peter@gmail.com"
+    ]
+
+-- defaultOneRole : Role
+-- defaultOneRole =
+--     { role = "Zombie Extra"
+--     , first = "Josh"
+--     , last = "Weinberg"
+--     , callStart = "8:00 Am"
+--     , pay= "$ 125/12"
+--     , lunch_start = "12:00"
+--     , lunch_length = "1 hr"
+--     , roleIn = ""
+--     , roleOut = ""
+--     , call_end = "5:00PM"
+--     , email = "josh@gmail.com"
+--     }
+
+-- Skin Date
+
+-- Action TOP
+-- Search
+-- Edit
+-- Add
+
+-- Action Bottom
+-- Breakdown
+-- Export CSV
+-- Wrap Skin

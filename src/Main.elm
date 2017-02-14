@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import ManageRole as ManageRole
-import Types exposing (Role)
+import Types exposing (Role, initRoles)
 import Html exposing (Html, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style)
 import Html.Events exposing (onClick, onInput)
@@ -50,7 +50,7 @@ type alias Profile =
 
 initModel : Nav.Location -> Model
 initModel location =
-    Model [ location ] [] Nothing  ManageRole.init [] (Table.initialSort "Role") "" False
+    Model [ location ] [] Nothing  ManageRole.init initRoles (Table.initialSort "Role") "" False
 
 init : Nav.Location -> (Model, Cmd Msg)
 init location =

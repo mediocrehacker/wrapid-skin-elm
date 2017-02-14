@@ -172,10 +172,11 @@ viewTable tableState roles =
 config : Table.Config Role Msg
 config =
   Table.config
-    { toId = .role
+    { toId = .uuid
     , toMsg = SetTableState
     , columns =
-        [ Table.stringColumn "Role" .role
+        [Table.stringColumn "Role" .uuid
+        , Table.stringColumn "Role" .role
         , Table.stringColumn "First" .first
         , Table.stringColumn "Last" .last
         , Table.stringColumn "Call Start" .callStart

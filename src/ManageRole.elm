@@ -3,7 +3,7 @@ module ManageRole exposing (..)
 import Html exposing (Html, text, input, div, p)
 import Html.Attributes exposing (placeholder, style, value)
 import Html.Events exposing (onInput)
-import Types exposing (Role)
+import Types exposing (Role, uuid)
 
 -- MODEL
 
@@ -11,7 +11,7 @@ type alias Model =
     Role
 
 init =
-    Role "" "" "" "" "" "" "" "" "" "" ""
+    Role "" "" "" "" "" "" "" "" "" "" "" uuid
 
 -- ACTION, UPDATE
 

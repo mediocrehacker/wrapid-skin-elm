@@ -1,5 +1,10 @@
 module Types exposing (..)
 
+import Random.Pcg
+import Uuid
+import Uuid.Barebones
+import Random
+
 type alias Role =
     { role : String
     , first : String
@@ -12,14 +17,29 @@ type alias Role =
     , roleOut : String
     , callEnd : String
     , email : String
+    , uuid : String
     }
 
 emptyRole : Role
 emptyRole =
-    Role "" "" "" "" "" "" "" "" "" "" ""
+    Role "" "" "" "" "" "" "" "" "" "" "" uuid
+
+uuid : String
+uuid =
+    let
+
+        u = Random.
+    in
+        case Debug.log "u: " u of
+            Random.Pcg.Generator uuid ->
+                Uuid.toString uuid
+            Nothing ->
+                "1"
+
 
 initRoles : List Role
 initRoles =
+   List.map (\x -> x uuid )
     [ Role "Zombie Extra" "Josh" "Weinberg" "8:00 Am" "$ 125/12" "12:00" "1 hr" "" "" "5:00PM" "josh@gmail.com"
     , Role "Zombie Super Extra" "Josh" "Weinberg" "8:00 Am" "$ 125/12" "12:00" "1 hr" "" "" "5:00PM" "josh@gmail.com"
     , Role "Cop Extra" "Peter" "Geit" "9:00 Am" "$ 130/12" "11:00" "1 hr" "" "" "5:00PM" "joshBig@gmail.com"

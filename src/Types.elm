@@ -35,3 +35,21 @@ initRoles =
 addIdToRoles : List Role -> List Role
 addIdToRoles =
     List.indexedMap (\i x -> { x | id = toString i })
+
+
+roleToString : Role -> String
+roleToString { id
+    , role
+    , first
+    , last
+    , callStart
+    , pay
+    , lunchStart
+    , lunchLength
+    , roleIn
+    , roleOut
+    , callEnd
+    , email
+    , selected
+    } =
+    role ++ first ++ last ++ callStart ++ pay ++ lunchStart ++ lunchLength ++ roleIn ++ roleOut ++ callEnd ++ email

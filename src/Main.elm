@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import ManageRole as ManageRole
-import Types exposing (Role, initRoles, addIdToRoles)
+import Types exposing (Role, initRoles, addIdToRoles, roleToString)
 import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
 import Html.Events exposing (onClick, onInput)
@@ -174,7 +174,7 @@ viewTableWithSearch roles tableState query =
             String.toLower query
 
         acceptableRole =
-            List.filter (String.contains lowerQuery << String.toLower << .role) roles
+            List.filter (String.contains lowerQuery << String.toLower << roleToString) roles
     in
         div []
             [ input [ placeholder "Search by Role", onInput SetQuery ] []

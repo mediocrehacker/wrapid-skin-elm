@@ -2,14 +2,14 @@ port module Main exposing (main)
 
 import ManageRole as ManageRole
 import Types exposing (Role, initRoles, addIdToRoles)
-import Html exposing (Html, a, button, div, h1, img, li, p, text, ul, input)
-import Html.Attributes exposing (href, src, placeholder, style)
+import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
+import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
 import Html.Events exposing (onClick, onInput)
 import Navigation as Nav
 import List.Extra exposing (find)
 import WrapidLogo exposing (logo)
 import Maybe exposing (andThen)
-import Table
+import Table exposing (defaultCustomizations)
 
 main : Program Never Model Msg
 main =
@@ -64,6 +64,7 @@ type Msg
     = UrlChange Nav.Location
     | ShowAvatar String
     | SetQuery String
+    | ToggleSelected String
     | SetTableState Table.State
     | ToggleDialog
     | AddRole
@@ -100,6 +101,11 @@ update msg model =
                 , Cmd.none
                 )
 
+        ToggleSelected id ->
+            ( { model | roles = List.map (toggle id) model.roles }
+            , Cmd.none
+            )
+
         SetTableState newState ->
             ( { model | tableState = newState }
             , Cmd.none
@@ -125,6 +131,15 @@ update msg model =
 
         -- _ ->
         --     (model, Cmd.none)
+
+
+toggle : String -> Role -> Role
+toggle id role =
+  if role.id == id then
+    { role | selected = not role.selected }
+
+  else
+    role
 
 -- VIEW
 
@@ -174,7 +189,7 @@ viewTable tableState roles =
 
 config : Table.Config Role Msg
 config =
-  Table.config
+  Table.customConfig
     { toId = .id
     , toMsg = SetTableState
     , columns =
@@ -191,7 +206,15 @@ config =
         , Table.stringColumn "Call End" .callEnd
         , Table.stringColumn "Email" .email
         ]
+    , customizations =
+        { defaultCustomizations | rowAttrs = toRowAttrs }
     }
+
+toRowAttrs : Role -> List (Attribute Msg)
+toRowAttrs role =
+  [ onClick (ToggleSelected role.id)
+  , style [ ("background", if role.selected then "#CEFAF8" else "white") ]
+  ]
 
 viewLink : String -> Html msg
 viewLink name =

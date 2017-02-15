@@ -11,7 +11,7 @@ type alias Model =
     Role
 
 init =
-    Role "" "" "" "" "" "" "" "" "" "" "" ""
+    Role "" "" "" "" "" "" "" "" "" "" "" "" False
 
 -- ACTION, UPDATE
 

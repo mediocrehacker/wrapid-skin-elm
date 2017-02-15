@@ -193,7 +193,8 @@ config =
     { toId = .id
     , toMsg = SetTableState
     , columns =
-        [ Table.stringColumn "Id" .id
+        [ checkboxColumn
+        , Table.stringColumn "Id" .id
         , Table.stringColumn "Role" .role
         , Table.stringColumn "First" .first
         , Table.stringColumn "Last" .last
@@ -209,6 +210,21 @@ config =
     , customizations =
         { defaultCustomizations | rowAttrs = toRowAttrs }
     }
+
+checkboxColumn : Table.Column Role Msg
+checkboxColumn =
+  Table.veryCustomColumn
+    { name = ""
+    , viewData = viewCheckbox
+    , sorter = Table.unsortable
+    }
+
+viewCheckbox : Role -> Table.HtmlDetails Msg
+viewCheckbox {selected} =
+  Table.HtmlDetails []
+    [ input [ type_ "checkbox", checked selected ] []
+    ]
+
 
 toRowAttrs : Role -> List (Attribute Msg)
 toRowAttrs role =

@@ -11,7 +11,7 @@ type alias Model =
     Role
 
 init =
-    Role "" "" "" "" "" "" "" "" "" "" ""
+    Role "" "" "" "" "" "" "" "" "" "" "" ""
 
 -- ACTION, UPDATE
 
@@ -27,7 +27,7 @@ type Msg
     | UpdRoleOut String
     | UpdCallEnd String
     | UpdEmail String
-
+    | UpdId String
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -65,7 +65,9 @@ update msg model =
         UpdEmail str ->
             ( { model | email = str}
             , Cmd.none)
-
+        UpdId str ->
+            ( { model | id = str}
+            , Cmd.none)
 
 -- View
 

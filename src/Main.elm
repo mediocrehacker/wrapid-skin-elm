@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import ManageRole as ManageRole
-import Types exposing (Role, initRoles)
+import Types exposing (Role, initRoles, addIdToRoles)
 import Html exposing (Html, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style)
 import Html.Events exposing (onClick, onInput)
@@ -116,9 +116,12 @@ update msg model =
                     , Cmd.map ManageRoleMsg manageRoleCmd
                     )
         AddRole ->
-            ( { model | roles = model.roles ++ [model.manageRole] }
-            , Cmd.none
-            )
+            let
+                rs = addIdToRoles (model.roles ++ [model.manageRole])
+            in
+                ( { model | roles = rs }
+                , Cmd.none
+                )
 
         -- _ ->
         --     (model, Cmd.none)
@@ -172,10 +175,11 @@ viewTable tableState roles =
 config : Table.Config Role Msg
 config =
   Table.config
-    { toId = .role
+    { toId = .id
     , toMsg = SetTableState
     , columns =
-        [ Table.stringColumn "Role" .role
+        [ Table.stringColumn "Id" .id
+        , Table.stringColumn "Role" .role
         , Table.stringColumn "First" .first
         , Table.stringColumn "Last" .last
         , Table.stringColumn "Call Start" .callStart

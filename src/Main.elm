@@ -33,7 +33,7 @@ type alias Model =
     , roles : List Role
     , tableState : Table.State
     , query : String
-    , dialogOpened : Bool
+    , dialogOpened : Dialog
     }
 
 
@@ -50,7 +50,7 @@ type alias Profile =
 
 initModel : Nav.Location -> Model
 initModel location =
-    Model [ location ] [] Nothing  ManageRole.init initRoles (Table.initialSort "Role") "" False
+    Model [ location ] [] Nothing  ManageRole.init initRoles (Table.initialSort "Role") "" NoDialog
 
 init : Nav.Location -> (Model, Cmd Msg)
 init location =
@@ -67,11 +67,15 @@ type Msg
     | ToggleSelected String
     | ToggleSelectedAll Bool
     | SetTableState Table.State
-    | ToggleDialog
-    | AddRole
+    | ToggleDialog Dialog
+    | AddRoles
+    | EditRoles String
     | ManageRoleMsg ManageRole.Msg
 
-
+type Dialog
+    = AddDialog
+    | EditDialog
+    | NoDialog
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -85,9 +89,12 @@ update msg model =
             ( { model | query = newQuery }
             , Cmd.none )
 
-        ToggleDialog ->
-            ( { model | dialogOpened = not model.dialogOpened }
-            , Cmd.none )
+        ToggleDialog dialog ->
+            let
+                toggleDialog = if dialog == model.dialogOpened then NoDialog else dialog
+            in
+                ( { model | dialogOpened = toggleDialog }
+                , Cmd.none )
 
 
         ShowAvatar id ->
@@ -127,11 +134,28 @@ update msg model =
                     ( { model | manageRole = updatedManageRoleModel }
                     , Cmd.map ManageRoleMsg manageRoleCmd
                     )
-        AddRole ->
+
+        AddRoles ->
             let
                 rs = addIdToRoles (model.roles ++ [model.manageRole])
             in
                 ( { model | roles = rs }
+                , Cmd.none
+                )
+
+        EditRoles string->
+            let
+                -- updateRoles = { x | role = string }
+                updateRoles = List.map
+                     (\x -> if x.selected == True then
+                                { x | role = string  }
+                            else
+                                x
+                     )
+                     model.roles
+
+            in
+                ( { model | roles = updateRoles }
                 , Cmd.none
                 )
 
@@ -170,14 +194,29 @@ view model =
         , viewAvatar model.currentImg
         ]
 
-viewManageRole : Bool -> ManageRole.Model -> Html Msg
-viewManageRole bool manageRolesModel =
-    if bool then
-        div []
-            [ Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
-            , button [ onClick AddRole ] [ text "ADD ROLE" ] ]
-    else
-        div [] []
+viewManageRole : Dialog -> ManageRole.Model -> Html Msg
+viewManageRole dialog manageRolesModel =
+    case dialog of
+        AddDialog ->
+            div []
+                [ Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
+                , button [ onClick AddRoles ] [ text "ADD ROLES" ]
+                ]
+
+        EditDialog ->
+            viewEditRoles
+
+        _ ->
+            div [] []
+
+
+viewEditRoles : Html Msg
+viewEditRoles  =
+    div []
+        [ text "Edit Role"
+        , input [ placeholder "Edit Role", onInput EditRoles ] []
+        ]
+
 
 viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
 viewTableWithSearch roles tableState query =
@@ -193,7 +232,8 @@ viewTableWithSearch roles tableState query =
     in
         div []
             [ input [ placeholder "Search by Role", onInput SetQuery ] []
-            , button [ onClick ToggleDialog ] [ text "ADD" ]
+            , button [ onClick (ToggleDialog AddDialog) ] [ text "ADD" ]
+            , button [ onClick (ToggleDialog EditDialog) ] [ text "EDIT" ]
             , input [ type_ "checkbox", onCheck ToggleSelectedAll, checked checkedAll ] []
             , viewTable tableState acceptableRole
             ]

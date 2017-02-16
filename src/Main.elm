@@ -187,11 +187,14 @@ viewTableWithSearch roles tableState query =
 
         acceptableRole =
             List.filter (String.contains lowerQuery << String.toLower << roleToString) roles
+        checkedAll =
+            List.all (\x -> x.selected == True) roles
+
     in
         div []
             [ input [ placeholder "Search by Role", onInput SetQuery ] []
             , button [ onClick ToggleDialog ] [ text "ADD" ]
-            , input [ type_ "checkbox", onCheck ToggleSelectedAll ] []
+            , input [ type_ "checkbox", onCheck ToggleSelectedAll, checked checkedAll ] []
             , viewTable tableState acceptableRole
             ]
 

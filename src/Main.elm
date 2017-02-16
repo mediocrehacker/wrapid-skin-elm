@@ -1,6 +1,6 @@
 port module Main exposing (main)
 
-import ManageRole as ManageRole
+import AddRoles as AddRoles
 import Types exposing (Role, initRoles, addIdToRoles, roleToString)
 import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
@@ -29,7 +29,7 @@ type alias Model =
     { history : List Nav.Location
     , profiles : List Profile
     , currentImg : Maybe String
-    , manageRole : ManageRole.Model
+    , addRoles : AddRoles.Model
     , roles : List Role
     , tableState : Table.State
     , query : String
@@ -50,7 +50,7 @@ type alias Profile =
 
 initModel : Nav.Location -> Model
 initModel location =
-    Model [ location ] [] Nothing  ManageRole.init initRoles (Table.initialSort "Role") "" NoDialog
+    Model [ location ] [] Nothing  AddRoles.init initRoles (Table.initialSort "Role") "" NoDialog
 
 init : Nav.Location -> (Model, Cmd Msg)
 init location =
@@ -70,7 +70,7 @@ type Msg
     | ToggleDialog Dialog
     | AddRoles
     | EditRoles String
-    | ManageRoleMsg ManageRole.Msg
+    | AddRolesMsg AddRoles.Msg
 
 type Dialog
     = AddDialog
@@ -125,19 +125,19 @@ update msg model =
             )
 
 
-        ManageRoleMsg subMsg ->
+        AddRolesMsg subMsg ->
                 let
                     _ = Debug.log "model: " model
-                    ( updatedManageRoleModel, manageRoleCmd ) =
-                        ManageRole.update subMsg model.manageRole
+                    ( updatedAddRolesModel, addRolesCmd ) =
+                        AddRoles.update subMsg model.addRoles
                 in
-                    ( { model | manageRole = updatedManageRoleModel }
-                    , Cmd.map ManageRoleMsg manageRoleCmd
+                    ( { model | addRoles = updatedAddRolesModel }
+                    , Cmd.map AddRolesMsg addRolesCmd
                     )
 
         AddRoles ->
             let
-                rs = addIdToRoles (model.roles ++ [model.manageRole])
+                rs = addIdToRoles (model.roles ++ AddRoles.toRoles(model.addRoles))
             in
                 ( { model | roles = rs }
                 , Cmd.none
@@ -189,17 +189,17 @@ view model =
         , h1 [] [ text "History" ]
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
-        , viewManageRole model.dialogOpened model.manageRole
+        , viewAddRoles model.dialogOpened model.addRoles
         , viewTableWithSearch model.roles model.tableState model.query
         , viewAvatar model.currentImg
         ]
 
-viewManageRole : Dialog -> ManageRole.Model -> Html Msg
-viewManageRole dialog manageRolesModel =
+viewAddRoles : Dialog -> AddRoles.Model -> Html Msg
+viewAddRoles dialog addRolessModel =
     case dialog of
         AddDialog ->
             div []
-                [ Html.map ManageRoleMsg (ManageRole.view manageRolesModel)
+                [ Html.map AddRolesMsg (AddRoles.view addRolessModel)
                 , button [ onClick AddRoles ] [ text "ADD ROLES" ]
                 ]
 

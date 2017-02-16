@@ -4,7 +4,7 @@ import ManageRole as ManageRole
 import Types exposing (Role, initRoles, addIdToRoles, roleToString)
 import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, onCheck)
 import Navigation as Nav
 import List.Extra exposing (find)
 import WrapidLogo exposing (logo)
@@ -65,6 +65,7 @@ type Msg
     | ShowAvatar String
     | SetQuery String
     | ToggleSelected String
+    | ToggleSelectedAll Bool
     | SetTableState Table.State
     | ToggleDialog
     | AddRole
@@ -106,6 +107,11 @@ update msg model =
             , Cmd.none
             )
 
+        ToggleSelectedAll bool ->
+            ( { model | roles = toggleAll bool model.roles }
+            , Cmd.none
+            )
+
         SetTableState newState ->
             ( { model | tableState = newState }
             , Cmd.none
@@ -131,6 +137,12 @@ update msg model =
 
         -- _ ->
         --     (model, Cmd.none)
+
+
+toggleAll : Bool -> List Role -> List Role
+toggleAll bool roles =
+    List.map (\x -> { x | selected = bool }) roles
+
 
 
 toggle : String -> Role -> Role
@@ -179,6 +191,7 @@ viewTableWithSearch roles tableState query =
         div []
             [ input [ placeholder "Search by Role", onInput SetQuery ] []
             , button [ onClick ToggleDialog ] [ text "ADD" ]
+            , input [ type_ "checkbox", onCheck ToggleSelectedAll ] []
             , viewTable tableState acceptableRole
             ]
 

@@ -1,12 +1,12 @@
 port module Main exposing (main)
 
 import AddRoles as AddRoles
-import Types exposing (Role, initRoles, addIdToRoles, roleToString)
+import Types exposing (Role, initRoles, addIdToRoles, roleToString, emptyRole)
 import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
 import Html.Events exposing (onClick, onInput, onCheck)
 import Navigation as Nav
-import List.Extra exposing (find)
+import List.Extra exposing (find, group, groupWhile)
 import WrapidLogo exposing (logo)
 import Maybe exposing (andThen)
 import Table exposing (defaultCustomizations)
@@ -34,6 +34,7 @@ type alias Model =
     , tableState : Table.State
     , query : String
     , dialogOpened : Dialog
+    , breakdown : Bool
     }
 
 
@@ -50,7 +51,7 @@ type alias Profile =
 
 initModel : Nav.Location -> Model
 initModel location =
-    Model [ location ] [] Nothing  AddRoles.init initRoles (Table.initialSort "Role") "" NoDialog
+    Model [ location ] [] Nothing  AddRoles.init initRoles (Table.initialSort "Role") "" NoDialog False
 
 init : Nav.Location -> (Model, Cmd Msg)
 init location =
@@ -71,6 +72,7 @@ type Msg
     | AddRoles
     | EditRoles String
     | AddRolesMsg AddRoles.Msg
+    | Breakdown
 
 type Dialog
     = AddDialog
@@ -159,6 +161,9 @@ update msg model =
                 , Cmd.none
                 )
 
+        Breakdown ->
+            ( { model | breakdown = not model.breakdown }
+            , Cmd.none)
         -- _ ->
         --     (model, Cmd.none)
 
@@ -190,7 +195,7 @@ view model =
         , ul [] (List.map viewLocation model.history)
         , h1 [] [ text "Data" ]
         , viewAddRoles model.dialogOpened model.addRoles
-        , viewTableWithSearch model.roles model.tableState model.query
+        , viewTableWithSearch model.breakdown model.roles model.tableState model.query
         , viewAvatar model.currentImg
         ]
 
@@ -218,14 +223,15 @@ viewEditRoles  =
         ]
 
 
-viewTableWithSearch : List Role -> Table.State -> String -> Html Msg
-viewTableWithSearch roles tableState query =
+viewTableWithSearch : Bool -> List Role -> Table.State -> String -> Html Msg
+viewTableWithSearch breakdown roles tableState query =
     let
         lowerQuery =
             String.toLower query
 
         acceptableRole =
             List.filter (String.contains lowerQuery << String.toLower << roleToString) roles
+
         checkedAll =
             List.all (\x -> x.selected == True) roles
 
@@ -234,14 +240,76 @@ viewTableWithSearch roles tableState query =
             [ input [ placeholder "Search by Role", onInput SetQuery ] []
             , button [ onClick (ToggleDialog AddDialog) ] [ text "ADD" ]
             , button [ onClick (ToggleDialog EditDialog) ] [ text "EDIT" ]
+            , button [ onClick Breakdown ] [ text "BREAKDOWN" ]
             , input [ type_ "checkbox", onCheck ToggleSelectedAll, checked checkedAll ] []
-            , viewTable tableState acceptableRole
+            , viewTable breakdown tableState acceptableRole
             ]
 
+viewTable : Bool -> Table.State -> List Role -> Html Msg
+viewTable bool tableState roles =
+    if bool then
+        viewTableBreakdown tableState roles
+    else
+        Table.view config tableState roles
 
-viewTable : Table.State -> List Role -> Html Msg
-viewTable tableState roles =
-    Table.view config tableState roles
+
+sortBreakdown : List Role -> List Role
+sortBreakdown roles =
+    List.sortBy .pay
+        <| List.sortBy .lunchStart
+        <| List.sortBy .lunchLength
+        <| List.sortBy .clockIn
+        <| List.sortBy .clockOut
+        <| roles
+
+compareBreakdown : Role -> Role -> Bool
+compareBreakdown x y =
+    (x.pay == y.pay) && (x.lunchStart == y.lunchStart) && (x.lunchLength == y.lunchLength) && (x.clockIn == y.clockIn) && (x.clockOut == y.clockOut)
+
+
+flatListRole : List (List Role) -> List (Role)
+flatListRole listRoles=
+    case listRoles of
+        (x::xs) ->
+            let
+                role = Maybe.withDefault emptyRole (List.head x)
+            in
+             [{ role | sum = toString(List.length x) }] ++ flatListRole xs
+        [] ->
+            []
+
+
+
+viewTableBreakdown : Table.State -> List Role -> Html Msg
+viewTableBreakdown tableState roles =
+    let
+        acceptableRole =
+            groupWhile (compareBreakdown) (sortBreakdown roles)
+        _ = Debug.log "groupWhile: " (List.map (\x -> List.length x) acceptableRole)
+        d = Debug.log "groupWhile: " (List.map (\x -> x.first) roles)
+    in
+        Table.view configBreakdown tableState (flatListRole acceptableRole)
+
+-- Pay, Lunch Start, Lunch Length, Clock In, Clock Out
+
+configBreakdown : Table.Config Role Msg
+configBreakdown =
+  Table.customConfig
+    { toId = .id
+    , toMsg = SetTableState
+    , columns =
+        [ checkboxColumn
+        , Table.stringColumn "Sum" .sum
+        , Table.stringColumn "Pay" .pay
+        , Table.stringColumn "Lunch Start" .lunchStart
+        , Table.stringColumn "Lunch length" .lunchLength
+        , Table.stringColumn "In" .clockIn
+        , Table.stringColumn "Out" .clockOut
+        ]
+    , customizations =
+        { defaultCustomizations | rowAttrs = toRowAttrs }
+    }
+
 
 config : Table.Config Role Msg
 config =
@@ -258,8 +326,8 @@ config =
         , Table.stringColumn "Pay" .pay
         , Table.stringColumn "Lunch Start" .lunchStart
         , Table.stringColumn "Lunch length" .lunchLength
-        , Table.stringColumn "In" .roleIn
-        , Table.stringColumn "Out" .roleOut
+        , Table.stringColumn "In" .clockIn
+        , Table.stringColumn "Out" .clockOut
         , Table.stringColumn "Call End" .callEnd
         , Table.stringColumn "Email" .email
         ]

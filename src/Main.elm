@@ -5,15 +5,13 @@ import Types exposing (Role, initRoles, addIdToRoles, roleToString, emptyRole)
 import Html exposing (Html, Attribute, a, button, div, h1, img, li, p, text, ul, input)
 import Html.Attributes exposing (href, src, placeholder, style, checked, type_)
 import Html.Events exposing (onClick, onInput, onCheck)
-import Navigation as Nav
 import List.Extra exposing (find, group, groupWhile)
-import WrapidLogo exposing (logo)
 import Maybe exposing (andThen)
 import Table exposing (defaultCustomizations)
 
 main : Program Never Model Msg
 main =
-    Nav.program UrlChange
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -26,8 +24,7 @@ main =
 
 
 type alias Model =
-    { history : List Nav.Location
-    , profiles : List Profile
+    { profiles : List Profile
     , currentImg : Maybe String
     , addRoles : AddRoles.Model
     , roles : List Role
@@ -37,11 +34,6 @@ type alias Model =
     , breakdown : Bool
     }
 
-
-type alias Url =
-    String
-
-
 type alias Profile =
     { id : String
     , firstName : String
@@ -49,21 +41,20 @@ type alias Profile =
     }
 
 
-initModel : Nav.Location -> Model
-initModel location =
-    Model [ location ] [] Nothing  AddRoles.init initRoles (Table.initialSort "Role") "" NoDialog False
+initModel : Model
+initModel =
+    Model [] Nothing  AddRoles.init initRoles (Table.initialSort "Role") "" NoDialog False
 
-init : Nav.Location -> (Model, Cmd Msg)
-init location =
-    ( initModel location, Cmd.none )
+init : (Model, Cmd Msg)
+init =
+    ( initModel, Cmd.none )
 
 
 -- UPDATE
 
 
 type Msg
-    = UrlChange Nav.Location
-    | ShowAvatar String
+    = ShowAvatar String
     | SetQuery String
     | ToggleSelected String
     | ToggleSelectedAll Bool
@@ -82,11 +73,6 @@ type Dialog
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "msg: " msg of
-        UrlChange location ->
-            ( { model | history = location :: model.history }
-            , Cmd.none
-            )
-
         SetQuery newQuery ->
             ( { model | query = newQuery }
             , Cmd.none )
@@ -188,12 +174,7 @@ toggle id role =
 view : Model -> Html Msg
 view model =
     div []
-        [ -- logo
-        h1 [] [ text "Pages" ]
-        , ul [] (List.map viewLink [ "bears", "cats", "dogs", "elephants", "fish" ])
-        , h1 [] [ text "History" ]
-        , ul [] (List.map viewLocation model.history)
-        , h1 [] [ text "Data" ]
+        [ h1 [] [ text "Data" ]
         , viewAddRoles model.dialogOpened model.addRoles
         , viewTableWithSearch model.breakdown model.roles model.tableState model.query
         , viewAvatar model.currentImg
@@ -359,12 +340,6 @@ toRowAttrs role =
 viewLink : String -> Html msg
 viewLink name =
     li [] [ a [ href ("#" ++ name) ] [ text name ] ]
-
-
-viewLocation : Nav.Location -> Html msg
-viewLocation location =
-    li [] [ text (location.pathname ++ location.hash) ]
-
 
 
 viewAvatar : Maybe String -> Html msg
